@@ -27,7 +27,7 @@ process PICARD_COLLECTWGSMETRICS {
     if (!task.memory) {
         log.info '[Picard CollectWgsMetrics] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
     } else {
-        avail_mem = task.memory.giga
+        avail_mem = task.memory.giga - 1
     }
     """
 
@@ -38,6 +38,9 @@ process PICARD_COLLECTWGSMETRICS {
     find /tmp/ -type f
 
     df -h
+
+    samtools view ${bam} | head -n5
+    head -n5 ${fasta}
 
     picard \\
         -Xmx${avail_mem}g \\
