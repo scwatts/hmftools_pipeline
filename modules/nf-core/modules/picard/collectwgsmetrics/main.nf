@@ -47,8 +47,7 @@ process PICARD_COLLECTWGSMETRICS {
         $args \\
         --INPUT $bam \\
         --OUTPUT ${prefix}.CollectWgsMetrics.coverage_metrics \\
-        --REFERENCE_SEQUENCE ${fasta}
-
+        --REFERENCE_SEQUENCE ${fasta} || sleep inf;
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
