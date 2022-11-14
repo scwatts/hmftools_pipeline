@@ -39,7 +39,6 @@ process PICARD_COLLECTWGSMETRICS {
 
     df -h
 
-    samtools view ${bam} | head -n5
     head -n5 ${fasta}
 
     picard \\
