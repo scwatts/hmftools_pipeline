@@ -9,7 +9,6 @@ include { TEAL as TEAL_PROCESS } from '../../modules/umccr/nextflow_modules/teal
 workflow TEAL {
   take:
     ch_inputs_bams          // channel: [val(meta), tumor_bam, normal_bam, tumor_bai, normal_bai]
-    ch_inputs_other         // channel: [val(meta), cobalt_dir, purple_dir]
     ref_data_genome_fa      //    file: /path/to/genome_fa
 
   main:
@@ -28,25 +27,25 @@ workflow TEAL {
       ch_metrics_inputs,
       ref_data_genome_fa,
     )
-    ch_versions = ch_versions.mix(COLLECTWGSMETRICS.out.versions)
-    // Run TEAL
-    // NOTE(SW): performed here to avoid WorkflowHmftools import in WorkflowTeal
-    // channel: [val(meta_teal), wgs_metrics, bam, bai]
-    ch_bams_and_metrics_unsorted = WorkflowHmftools.group_by_meta(
-      ch_input_bams_split_unique,
-      COLLECTWGSMETRICS.out.metrics,
-    )
+    //ch_versions = ch_versions.mix(COLLECTWGSMETRICS.out.versions)
+    //// Run TEAL
+    //// NOTE(SW): performed here to avoid WorkflowHmftools import in WorkflowTeal
+    //// channel: [val(meta_teal), wgs_metrics, bam, bai]
+    //ch_bams_and_metrics_unsorted = WorkflowHmftools.group_by_meta(
+    //  ch_input_bams_split_unique,
+    //  COLLECTWGSMETRICS.out.metrics,
+    //)
     // channel: [val(meta), tumor_bam, normal_bam, tumor_bai, normal_bai, tumor_wgs_metrics, normal_wgs_metrics]
-    ch_bam_and_metrics = WorkflowTeal.sort_bams_and_metrics(ch_bams_and_metrics_unsorted)
+    //ch_bam_and_metrics = WorkflowTeal.sort_bams_and_metrics(ch_bams_and_metrics_unsorted)
     // channel: [val(meta), tumor_bam, normal_bam, tumor_bai, normal_bai, tumor_wgs_metrics, normal_wgs_metrics, cobalt_dir, purple_dir]
-    ch_teal_inputs = WorkflowHmftools.group_by_meta(
-      ch_bam_and_metrics,
-      ch_inputs_other,
-    )
-    TEAL_PROCESS(
-      ch_teal_inputs,
-    )
-    ch_versions = ch_versions.mix(TEAL_PROCESS.out.versions)
+    //ch_teal_inputs = WorkflowHmftools.group_by_meta(
+    //  ch_bam_and_metrics,
+    //  ch_inputs_other,
+    //)
+    //TEAL_PROCESS(
+    //  ch_teal_inputs,
+    //)
+    //ch_versions = ch_versions.mix(TEAL_PROCESS.out.versions)
 
   emit:
     versions = ch_versions // channel: [versions.yml]

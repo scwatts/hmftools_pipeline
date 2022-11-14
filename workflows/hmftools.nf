@@ -183,202 +183,202 @@ workflow HMFTOOLS {
       }
   }
 
-  //
-  // MODULE: Run AMBER to obtain b-allele frequencies
-  //
-  // channel: [val(meta), amber_dir]
-  ch_amber_out = Channel.empty()
-  if (run_amber) {
-    AMBER(
-      ch_bams_and_indices,
-      ref_data_amber_loci,
-    )
-    ch_versions = ch_versions.mix(AMBER.out.versions)
-    ch_amber_out = ch_amber_out.mix(AMBER.out.amber_dir)
-  }
+  ////
+  //// MODULE: Run AMBER to obtain b-allele frequencies
+  ////
+  //// channel: [val(meta), amber_dir]
+  //Ch_amber_out = Channel.empty()
+  //If (run_amber) {
+  //  AMBER(
+  //    ch_bams_and_indices,
+  //    ref_data_amber_loci,
+  //  )
+  //  ch_versions = ch_versions.mix(AMBER.out.versions)
+  //  ch_amber_out = ch_amber_out.mix(AMBER.out.amber_dir)
+  //}
 
-  //
-  // MODULE: Run COBALT to obtain read ratios
-  //
-  // channel: [val(meta), cobalt_dir]
-  ch_cobalt_out = Channel.empty()
-  if (run_cobalt) {
-    COBALT(
-      ch_bams_and_indices,
-      ref_data_cobalt_gc_profile,
-    )
-    ch_versions = ch_versions.mix(COBALT.out.versions)
-    ch_cobalt_out = ch_cobalt_out.mix(COBALT.out.cobalt_dir)
-  }
+  ////
+  //// MODULE: Run COBALT to obtain read ratios
+  ////
+  //// channel: [val(meta), cobalt_dir]
+  //Ch_cobalt_out = Channel.empty()
+  //If (run_cobalt) {
+  //  COBALT(
+  //    ch_bams_and_indices,
+  //    ref_data_cobalt_gc_profile,
+  //  )
+  //  ch_versions = ch_versions.mix(COBALT.out.versions)
+  //  ch_cobalt_out = ch_cobalt_out.mix(COBALT.out.cobalt_dir)
+  //}
 
-  //
-  // SUBWORKFLOW: Call structural variants with GRIDSS
-  //
-  // channel: [val(meta), gridss_vcf]
-  ch_gridss_out = Channel.empty()
-  if (WorkflowHmftools.Stage.GRIDSS in stages) {
-    GRIDSS(
-      ch_inputs,
-      gridss_config,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_dict,
-      ref_data_genome_bwa_index,
-      ref_data_genome_bwa_index_image,
-      ref_data_genome_gridss_index,
-      ref_data_gridss_blacklist,
-    )
-    ch_versions = ch_versions.mix(GRIDSS.out.versions)
-    ch_gridss_out = ch_gridss_out.mix(GRIDSS.out.results)
-  }
+  ////
+  //// SUBWORKFLOW: Call structural variants with GRIDSS
+  ////
+  //// channel: [val(meta), gridss_vcf]
+  //Ch_gridss_out = Channel.empty()
+  //If (WorkflowHmftools.Stage.GRIDSS in stages) {
+  //  GRIDSS(
+  //    ch_inputs,
+  //    gridss_config,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_dict,
+  //    ref_data_genome_bwa_index,
+  //    ref_data_genome_bwa_index_image,
+  //    ref_data_genome_gridss_index,
+  //    ref_data_gridss_blacklist,
+  //  )
+  //  ch_versions = ch_versions.mix(GRIDSS.out.versions)
+  //  ch_gridss_out = ch_gridss_out.mix(GRIDSS.out.results)
+  //}
 
-  //
-  // MODULE: Run GRIPSS to filter GRIDSS SV calls
-  //
-  // channel: [val(meta), hard_vcf, hard_tbi, soft_vcf, soft_tbi]
-  ch_gripss_germline_out = Channel.empty()
-  // channel: [val(meta), hard_vcf, hard_tbi, soft_vcf, soft_tbi]
-  ch_gripss_somatic_out = Channel.empty()
-  if (WorkflowHmftools.Stage.GRIPSS in stages) {
-    GRIPSS(
-      ch_gridss_out,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_version,
-      ref_data_gridss_breakend_pon,
-      ref_data_gridss_breakpoint_pon,
-      ref_data_known_fusions,
-      ref_data_repeat_masker_file,
-    )
-    ch_versions = ch_versions.mix(GRIPSS.out.versions)
-    ch_gripss_germline_out = ch_gripss_germline_out.mix(GRIPSS.out.germline)
-    ch_gripss_somatic_out = ch_gripss_somatic_out.mix(GRIPSS.out.somatic)
-  }
+  ////
+  //// MODULE: Run GRIPSS to filter GRIDSS SV calls
+  ////
+  //// channel: [val(meta), hard_vcf, hard_tbi, soft_vcf, soft_tbi]
+  //Ch_gripss_germline_out = Channel.empty()
+  //// channel: [val(meta), hard_vcf, hard_tbi, soft_vcf, soft_tbi]
+  //Ch_gripss_somatic_out = Channel.empty()
+  //If (WorkflowHmftools.Stage.GRIPSS in stages) {
+  //  GRIPSS(
+  //    ch_gridss_out,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_version,
+  //    ref_data_gridss_breakend_pon,
+  //    ref_data_gridss_breakpoint_pon,
+  //    ref_data_known_fusions,
+  //    ref_data_repeat_masker_file,
+  //  )
+  //  ch_versions = ch_versions.mix(GRIPSS.out.versions)
+  //  ch_gripss_germline_out = ch_gripss_germline_out.mix(GRIPSS.out.germline)
+  //  ch_gripss_somatic_out = ch_gripss_somatic_out.mix(GRIPSS.out.somatic)
+  //}
 
-  //
-  // SUBWORKFLOW: call SNV, MNV, and small INDELS with SAGE
-  //
-  // channel: [val(meta), sage_vcf]
-  ch_sage_germline_out = Channel.empty()
-  // channel: [val(meta), sage_vcf]
-  ch_sage_somatic_out = Channel.empty()
-  if (WorkflowHmftools.Stage.SAGE in stages) {
-    SAGE(
-      ch_bams_and_indices,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_dict,
-      ref_data_genome_version,
-      ref_data_sage_known_hotspots_germline,
-      ref_data_sage_known_hotspots_somatic,
-      ref_data_sage_coding_panel,
-      ref_data_sage_high_confidence,
-      ref_data_sage_pon_file,
-      ref_data_mappability_bed,
-      ref_data_driver_gene_panel,
-      ref_data_ensembl_data_dir,
-    )
-    ch_versions = ch_versions.mix(SAGE.out.versions)
-    ch_sage_germline_out = ch_sage_germline_out.mix(SAGE.out.germline)
-    ch_sage_somatic_out = ch_sage_somatic_out.mix(SAGE.out.somatic)
-  }
+  ////
+  //// SUBWORKFLOW: call SNV, MNV, and small INDELS with SAGE
+  ////
+  //// channel: [val(meta), sage_vcf]
+  //Ch_sage_germline_out = Channel.empty()
+  //// channel: [val(meta), sage_vcf]
+  //Ch_sage_somatic_out = Channel.empty()
+  //If (WorkflowHmftools.Stage.SAGE in stages) {
+  //  SAGE(
+  //    ch_bams_and_indices,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_dict,
+  //    ref_data_genome_version,
+  //    ref_data_sage_known_hotspots_germline,
+  //    ref_data_sage_known_hotspots_somatic,
+  //    ref_data_sage_coding_panel,
+  //    ref_data_sage_high_confidence,
+  //    ref_data_sage_pon_file,
+  //    ref_data_mappability_bed,
+  //    ref_data_driver_gene_panel,
+  //    ref_data_ensembl_data_dir,
+  //  )
+  //  ch_versions = ch_versions.mix(SAGE.out.versions)
+  //  ch_sage_germline_out = ch_sage_germline_out.mix(SAGE.out.germline)
+  //  ch_sage_somatic_out = ch_sage_somatic_out.mix(SAGE.out.somatic)
+  //}
 
-  //
-  // SUBWORKFLOW: Annotate variants with PAVE
-  //
-  // channel: [val(meta), pave_vcf]
-  ch_pave_germline_out = Channel.empty()
-  // channel: [val(meta), pave_vcf]
-  ch_pave_somatic_out = Channel.empty()
-  if (run_pave) {
-    PAVE(
-      ch_sage_germline_out,
-      ch_sage_somatic_out,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_version,
-      ref_data_sage_pon_file,
-      ref_data_sage_blacklist_bed,
-      ref_data_sage_blacklist_vcf,
-      ref_data_clinvar_vcf,
-      ref_data_mappability_bed,
-      ref_data_driver_gene_panel,
-      ref_data_ensembl_data_dir,
-    )
-    ch_versions = ch_versions.mix(PAVE.out.versions)
-    ch_pave_germline_out = ch_pave_germline_out.mix(PAVE.out.germline)
-    ch_pave_somatic_out = ch_pave_somatic_out.mix(PAVE.out.somatic)
-  }
+  ////
+  //// SUBWORKFLOW: Annotate variants with PAVE
+  ////
+  //// channel: [val(meta), pave_vcf]
+  //Ch_pave_germline_out = Channel.empty()
+  //// channel: [val(meta), pave_vcf]
+  //Ch_pave_somatic_out = Channel.empty()
+  //If (run_pave) {
+  //  PAVE(
+  //    ch_sage_germline_out,
+  //    ch_sage_somatic_out,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_version,
+  //    ref_data_sage_pon_file,
+  //    ref_data_sage_blacklist_bed,
+  //    ref_data_sage_blacklist_vcf,
+  //    ref_data_clinvar_vcf,
+  //    ref_data_mappability_bed,
+  //    ref_data_driver_gene_panel,
+  //    ref_data_ensembl_data_dir,
+  //  )
+  //  ch_versions = ch_versions.mix(PAVE.out.versions)
+  //  ch_pave_germline_out = ch_pave_germline_out.mix(PAVE.out.germline)
+  //  ch_pave_somatic_out = ch_pave_somatic_out.mix(PAVE.out.somatic)
+  //}
 
-  //
-  // MODULE: Run PURPLE for CNV calling, purity and ploidy inference, SV recovery
-  //
-  // channel: [val(meta), purple_dir]
-  ch_purple_out = Channel.empty()
-  if (WorkflowHmftools.Stage.PURPLE in stages) {
+  ////
+  //// MODULE: Run PURPLE for CNV calling, purity and ploidy inference, SV recovery
+  ////
+  //// channel: [val(meta), purple_dir]
+  //Ch_purple_out = Channel.empty()
+  //If (WorkflowHmftools.Stage.PURPLE in stages) {
 
-    // Mode: full
-    if (WorkflowHmftools.Stage.PAVE in stages) {
-      ch_purple_inputs = WorkflowHmftools.group_by_meta(
-        ch_amber_out,
-        ch_cobalt_out,
-        ch_gripss_somatic_out,
-        ch_pave_somatic_out,
-        ch_pave_germline_out,
-      )
-    // Mode: gridss-purple-linx
-    } else if (WorkflowHmftools.Stage.AMBER in stages && WorkflowHmftools.Stage.COBALT in stages) {
-      ch_purple_inputs = WorkflowHmftools.group_by_meta(
-        ch_amber_out,
-        ch_cobalt_out,
-        ch_gripss_somatic_out,
-      )
-        .map { data ->
-          def meta = data[0]
-          def fps = data[1..-1]
-          return [
-            meta,
-            *fps,
-            meta.get(['smlv', 'tumor'], []),
-            meta.get(['smlv', 'normal'], []),
-          ]
-        }
-    // Mode: purple
-    } else {
-      ch_purple_inputs = ch_inputs
-        .map { meta ->
-          def sv_hard_vcf = meta[['gripss_hard_sv', 'tumor']]
-          def sv_soft_vcf = meta[['gripss_soft_sv', 'tumor']]
-          return [
-            meta,
-            meta[['amber_dir', 'tumor']],
-            meta[['cobalt_dir', 'tumor']],
-            sv_hard_vcf,
-            "${sv_hard_vcf}.tbi",
-            sv_soft_vcf,
-            "${sv_soft_vcf}.tbi",
-            meta.get(['smlv', 'tumor'], []),
-            meta.get(['smlv', 'normal'], []),
-          ]
-        }
-    }
+  //  // Mode: full
+  //  if (WorkflowHmftools.Stage.PAVE in stages) {
+  //    ch_purple_inputs = WorkflowHmftools.group_by_meta(
+  //      ch_amber_out,
+  //      ch_cobalt_out,
+  //      ch_gripss_somatic_out,
+  //      ch_pave_somatic_out,
+  //      ch_pave_germline_out,
+  //    )
+  //  // Mode: gridss-purple-linx
+  //  } else if (WorkflowHmftools.Stage.AMBER in stages && WorkflowHmftools.Stage.COBALT in stages) {
+  //    ch_purple_inputs = WorkflowHmftools.group_by_meta(
+  //      ch_amber_out,
+  //      ch_cobalt_out,
+  //      ch_gripss_somatic_out,
+  //    )
+  //      .map { data ->
+  //        def meta = data[0]
+  //        def fps = data[1..-1]
+  //        return [
+  //          meta,
+  //          *fps,
+  //          meta.get(['smlv', 'tumor'], []),
+  //          meta.get(['smlv', 'normal'], []),
+  //        ]
+  //      }
+  //  // Mode: purple
+  //  } else {
+  //    ch_purple_inputs = ch_inputs
+  //      .map { meta ->
+  //        def sv_hard_vcf = meta[['gripss_hard_sv', 'tumor']]
+  //        def sv_soft_vcf = meta[['gripss_soft_sv', 'tumor']]
+  //        return [
+  //          meta,
+  //          meta[['amber_dir', 'tumor']],
+  //          meta[['cobalt_dir', 'tumor']],
+  //          sv_hard_vcf,
+  //          "${sv_hard_vcf}.tbi",
+  //          sv_soft_vcf,
+  //          "${sv_soft_vcf}.tbi",
+  //          meta.get(['smlv', 'tumor'], []),
+  //          meta.get(['smlv', 'normal'], []),
+  //        ]
+  //      }
+  //  }
 
-    PURPLE(
-      ch_purple_inputs,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_dict,
-      ref_data_genome_version,
-      ref_data_cobalt_gc_profile,
-      ref_data_sage_known_hotspots_somatic,
-      ref_data_sage_known_hotspots_germline,
-      ref_data_driver_gene_panel,
-      ref_data_ensembl_data_dir,
-      ref_data_purple_germline_del,
-    )
-    ch_versions = ch_versions.mix(PURPLE.out.versions)
-    ch_purple_out = ch_purple_out.mix(PURPLE.out.purple_dir)
-  }
+  //  PURPLE(
+  //    ch_purple_inputs,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_dict,
+  //    ref_data_genome_version,
+  //    ref_data_cobalt_gc_profile,
+  //    ref_data_sage_known_hotspots_somatic,
+  //    ref_data_sage_known_hotspots_germline,
+  //    ref_data_driver_gene_panel,
+  //    ref_data_ensembl_data_dir,
+  //    ref_data_purple_germline_del,
+  //  )
+  //  ch_versions = ch_versions.mix(PURPLE.out.versions)
+  //  ch_purple_out = ch_purple_out.mix(PURPLE.out.purple_dir)
+  //}
 
   //
   // SUBWORKFLOW: Characterise teleomeres with TEAL
@@ -393,101 +393,100 @@ workflow HMFTOOLS {
       }
 
     // Mode: full
-    if (run_cobalt && WorkflowHmftools.Stage.PURPLE in stages) {
-      ch_teal_inputs_other = WorkflowHmftools.group_by_meta(
-        ch_cobalt_out,
-        ch_purple_out,
-      )
-    // Mode: teal
-    } else {
-      ch_teal_inputs_other = ch_inputs
-        .map { meta ->
-          return [
-            meta,
-            meta.get(['cobalt_dir', 'tumor']),
-            meta.get(['purple_dir', 'tumor']),
-          ]
-        }
-    }
+    //if (run_cobalt && WorkflowHmftools.Stage.PURPLE in stages) {
+    //  ch_teal_inputs_other = WorkflowHmftools.group_by_meta(
+    //    ch_cobalt_out,
+    //    ch_purple_out,
+    //  )
+    //// Mode: teal
+    //} else {
+    //  ch_teal_inputs_other = ch_inputs
+    //    .map { meta ->
+    //      return [
+    //        meta,
+    //        meta.get(['cobalt_dir', 'tumor']),
+    //        meta.get(['purple_dir', 'tumor']),
+    //      ]
+    //    }
+    //}
 
     TEAL(
       ch_teal_inputs_bams,
-      ch_teal_inputs_other,
       ref_data_genome_fa,
     )
     ch_versions = ch_versions.mix(TEAL.out.versions)
   }
 
-  //
-  // SUBWORKFLOW: Run LILAC for HLA typing and somatic CNV and SNV calling
-  //
-  if (run_lilac) {
+  ////
+  //// SUBWORKFLOW: Run LILAC for HLA typing and somatic CNV and SNV calling
+  ////
+  //if (run_lilac) {
 
-    // Mode: full
-    if (WorkflowHmftools.Stage.PURPLE in stages) {
-      ch_lilac_inputs_purple_dir = ch_purple_out
-    // Mode: lilac
-    } else {
-      ch_lilac_inputs_purple_dir = ch_inputs
-        .map { meta ->
-          return [meta, meta.get(['purple_dir', 'tumor'])]
-        }
-    }
+  //  // Mode: full
+  //  if (WorkflowHmftools.Stage.PURPLE in stages) {
+  //    ch_lilac_inputs_purple_dir = ch_purple_out
+  //  // Mode: lilac
+  //  } else {
+  //    ch_lilac_inputs_purple_dir = ch_inputs
+  //      .map { meta ->
+  //        return [meta, meta.get(['purple_dir', 'tumor'])]
+  //      }
+  //  }
 
-    LILAC(
-      ch_bams_and_indices,
-      ch_lilac_inputs_purple_dir,
-      ref_data_genome_fa,
-      ref_data_genome_fai,
-      ref_data_genome_version,
-      ref_data_lilac_resource_dir,
-    )
-    ch_versions = ch_versions.mix(LILAC.out.versions)
-  }
+  //  LILAC(
+  //    ch_bams_and_indices,
+  //    ch_lilac_inputs_purple_dir,
+  //    ref_data_genome_fa,
+  //    ref_data_genome_fai,
+  //    ref_data_genome_version,
+  //    ref_data_lilac_resource_dir,
+  //  )
+  //  ch_versions = ch_versions.mix(LILAC.out.versions)
+  //}
 
-  //
-  // SUBWORKFLOW: Group structural variants into higher order events with LINX
-  //
-  // channel: [val(meta), linx_annotation_dir, linx_visuliaser_dir]
-  ch_linx_somatic_out = Channel.empty()
-  if (WorkflowHmftools.Stage.LINX in stages) {
+  ////
+  //// SUBWORKFLOW: Group structural variants into higher order events with LINX
+  ////
+  //// channel: [val(meta), linx_annotation_dir, linx_visuliaser_dir]
+  //ch_linx_somatic_out = Channel.empty()
+  //if (WorkflowHmftools.Stage.LINX in stages) {
 
-    // Mode: full
-    if (WorkflowHmftools.Stage.PURPLE in stages && WorkflowHmftools.Stage.GRIPSS in stages) {
-      ch_linx_germline_inputs = ch_gripss_germline_out.map { meta, h, hi, s, si -> [meta, h] }
-      ch_linx_somatic_inputs = ch_purple_out
-    // Mode: linx
-    } else {
-      ch_linx_germline_inputs = ch_inputs
-        .map { meta ->
-          def sv = meta.get(['gripss_hard_sv', 'normal'], false)
-          return sv ? [meta, sv] : false
-        }
-        .filter { it }
-      ch_linx_somatic_inputs = ch_inputs.map { meta -> [meta, meta.get(['purple_dir', 'tumor'], []) ] }
-    }
+  //  // Mode: full
+  //  if (WorkflowHmftools.Stage.PURPLE in stages && WorkflowHmftools.Stage.GRIPSS in stages) {
+  //    ch_linx_germline_inputs = ch_gripss_germline_out.map { meta, h, hi, s, si -> [meta, h] }
+  //    ch_linx_somatic_inputs = ch_purple_out
+  //  // Mode: linx
+  //  } else {
+  //    ch_linx_germline_inputs = ch_inputs
+  //      .map { meta ->
+  //        def sv = meta.get(['gripss_hard_sv', 'normal'], false)
+  //        return sv ? [meta, sv] : false
+  //      }
+  //      .filter { it }
+  //    ch_linx_somatic_inputs = ch_inputs.map { meta -> [meta, meta.get(['purple_dir', 'tumor'], []) ] }
+  //  }
 
-    LINX(
-      ch_linx_germline_inputs,
-      ch_linx_somatic_inputs,
-      ref_data_genome_version,
-      ref_data_linx_fragile_sites,
-      ref_data_linx_lines,
-      ref_data_ensembl_data_dir,
-      ref_data_known_fusion_data,
-      ref_data_driver_gene_panel,
-    )
-    ch_versions = ch_versions.mix(LINX.out.versions)
-    ch_linx_somatic_out = ch_linx_somatic_out.mix(LINX.out.somatic)
+  //  LINX(
+  //    ch_linx_germline_inputs,
+  //    ch_linx_somatic_inputs,
+  //    ref_data_genome_version,
+  //    ref_data_linx_fragile_sites,
+  //    ref_data_linx_lines,
+  //    ref_data_ensembl_data_dir,
+  //    ref_data_known_fusion_data,
+  //    ref_data_driver_gene_panel,
+  //  )
+  //  ch_versions = ch_versions.mix(LINX.out.versions)
+  //  ch_linx_somatic_out = ch_linx_somatic_out.mix(LINX.out.somatic)
 
-    //
-    // MODULE: Run gpgr to generate a LINX report
-    //
-    LINX_REPORT(
-      ch_linx_somatic_out,
-    )
-    ch_versions = ch_versions.mix(LINX_REPORT.out.versions)
-  }
+  //  //
+  //  // MODULE: Run gpgr to generate a LINX report
+  //  //
+  //  LINX_REPORT(
+  //    ch_linx_somatic_out,
+  //  )
+  //  ch_versions = ch_versions.mix(LINX_REPORT.out.versions)
+  //}
 
   //
   // MODULE: Pipeline reporting
