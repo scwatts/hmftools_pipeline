@@ -61,7 +61,7 @@ process ASSEMBLE {
   # Run
   gridss \
     ${args} \
-    --jvmheap "${task.memory.giga}g" \
+    --jvmheap "${task.memory.giga - 1}g" \
     --jar "${task.ext.jarPath}" \
     --steps assemble \
     --labels "${labels_arg}" \

@@ -59,7 +59,7 @@ process CALL {
   # Run
   gridss \
     ${args} \
-    --jvmheap "${task.memory.giga}g" \
+    --jvmheap "${task.memory.giga - 1}g" \
     --jar "${task.ext.jarPath}" \
     --steps call \
     --labels "${labels_arg}" \
