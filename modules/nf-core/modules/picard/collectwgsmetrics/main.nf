@@ -1,4 +1,6 @@
 process PICARD_COLLECTWGSMETRICS {
+    debug true
+
     tag "$meta.id"
     label 'process_medium'
 
@@ -28,6 +30,15 @@ process PICARD_COLLECTWGSMETRICS {
         avail_mem = task.memory.giga
     }
     """
+
+    pwd -P
+
+    ls -la
+
+    find /tmp/ -type f
+
+    df -h
+
     picard \\
         -Xmx${avail_mem}g \\
         CollectWgsMetrics \\
