@@ -1,6 +1,6 @@
 process GRIPSS_GERMLINE {
   //conda (params.enable_conda ? "bioconda::hmftools-gripss=2.2" : null)
-  container 'docker.io/scwatts/gripss:2.3--0'
+  container 'docker.io/scwatts/gripss:2.3.1--0'
 
   input:
   tuple val(meta), path(gridss_vcf)
