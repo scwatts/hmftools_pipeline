@@ -1,6 +1,6 @@
 process LINX_REPORT {
-  //conda (params.enable_conda ? "umccr::r-gpgr==1.3.0" : null)
-  container 'ghcr.io/umccr/gpgr:1.3.0'
+  //conda (params.enable_conda ? "umccr::r-gpgr==1.4.1" : null)
+  container 'ghcr.io/umccr/gpgr:1.4.1'
 
   input:
   tuple val(meta), path(linx_annotation), path(linx_visualiser)
